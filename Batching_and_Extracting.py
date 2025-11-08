@@ -11,8 +11,12 @@ def extract_ids():
     return result
 
 def get_batches():
-    iterable = extract_ids()
-    batch = []
+    pass
+
+
+
+
+    
 def grouper(iterable, num, incomplete = 'fill', fillvalue=None):
     '''Collect data into non-overlapping fixed-length batches'''
     iterators = [iter(iterable)] * num
@@ -25,6 +29,7 @@ def grouper(iterable, num, incomplete = 'fill', fillvalue=None):
             return zip(*iterators)
         case _:
             raise ValueError('Expected fill, strict, or ignore')
+    
 
         
 
