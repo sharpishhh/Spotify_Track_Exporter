@@ -1,30 +1,54 @@
 import time
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+import csv
+from itertools import zip_longest
+import os
 
-# Open the file of full track links
-with open("Full_Links.txt", "r") as file:
-    full_links = file.readlines()
+# Open file and read in links
+def read_links(file_path):
+    with open(file_path, "r") as file:
+       return file.readlines()
 
-def extract_track_id(full_links):
-    result = []
+# Clean extra space from end of the links
+def clean_links(full_links):
+    cleaned = []
     for link in full_links:
-        result.append(link.removeprefix("https://open.spotify.com/track/").rstrip())
-    return result
+        cleaned.append(link.rstrip())
+    return cleaned
 
+# Using the cleaned links, parse and extract the track IDs
+def extract_ids(cleaned):
+    parsed_ids = []
+    for link in cleaned:
+        parsed_ids.append(link.removeprefix("https://open.spotify.com/track/").rstrip())
+    return parsed_ids
 
-def retrieve_tracks():
-    auth_manager = SpotifyClientCredentials(client_id='', client_secret='')
-    sp = spotipy.Spotify(auth_manager=auth_manager)
-    track_list = extract_track_id(full_links)
-    final_list = sp.tracks(track_list)
-    print(final_list['name'] + '-' + final_list['artists'][0]['name'])
+# Generate batches of digestable size to give to Spotify
+def get_batches(parsed_ids):
+    length = len(parsed_ids)
+    for i in range(0,length,50):
+        yield parsed_ids[i:i+50]
+
+# Convert batches to CSV file.
+# Use to create CSV file upon completion of parsing and batching.
+def consume_batches(batch):
+    path = "track_list.csv"
+    if os.path.isfile(path):
+        with open("track_list.csv", "a", newline="") as f:
+            writer = writer(f)
+            writer.writerow(batch)
+    else:
+        with open("track_list.csv", "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerows(batch)
+            print("CSV file created")
+
+def run_exporter():
+    full_links = read_links("Full_Links.txt")
+    cleaned = clean_links(full_links)
+    parsed_ids = extract_ids(cleaned)
+    batch = get_batches(parsed_ids)
+    converted_tracks = consume_batches(batch)
+    return converted_tracks
 
 if __name__ == "__main__":
-    print(retrieve_tracks())
-
-
-'''   def get_args():
-    parser = argparse.Argu mentParser(description='Print artist and track name given a list of track IDs')
-    parser.add_argument('-u', '--uris', nargs='+', required=True, help='Track ids')
-    return parser.parse_args()'''
+    run_exporter()
