@@ -5,8 +5,8 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 # Get track information from Spotify Web API
-def retrieve_track_data(client_id, client_secret, batch):
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id, client_secret))
+def retrieve_track_data(client_id, client_secret, redirect_uri, batch):
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id, client_secret, redirect_uri))
     track_list = sp.tracks(batch)
     for track in track_list['tracks']:
         print(track['name'], track['artists'][0]['name'])
@@ -48,11 +48,11 @@ def consume_batches(batch):
     if os.path.isfile(path):
         with open("track_list.csv", "a", newline="") as file:
             writer = csv.writer(file)
-            writer.writeline(batch)
+            writer.writerow([id])
     else:
         with open("track_list.csv", "w", newline="") as file:
             writer = csv.writer(file)
-            writer.writeline(batch)
+            writer.writerow([id])
             print("CSV file created")
 
 def run_exporter(client_id, client_secret):
@@ -67,4 +67,4 @@ def run_exporter(client_id, client_secret):
         consume_batches(batch)
 
 if __name__ == "__main__":
-    run_exporter()
+    run_exporter(client_id="CLIENTid", client_secret="CLIENTsecret", redirect_uri="http://127.0.0.1:8000/callback")
