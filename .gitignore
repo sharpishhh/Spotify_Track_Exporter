@@ -1,3 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+
+# Environment variables
 .env
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+
+
 ScratchWork.py
 .cache

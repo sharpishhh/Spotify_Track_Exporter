@@ -3,17 +3,26 @@ import csv
 import os
 import spotipy 
 from spotipy.oauth2 import SpotifyOAuth
+from dotenv import load_dotenv
+load_dotenv()
+print("starting track exporter.py")
+
+
+def authorization(client_id, client_secret, redirect_uri, scope):
+    # Use keyword arguments so SpotifyOAuth gets the right values
+    auth_manager = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope)
+    sp = spotipy.Spotify(auth_manager=auth_manager)
+    return sp
 
 # Get track information from Spotify Web API
-def retrieve_track_data(client_id, client_secret, redirect_uri, batch):
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id, client_secret, redirect_uri))
+def retrieve_track_data(sp, batch):
     track_list = sp.tracks(batch)
     for track in track_list['tracks']:
         print(track['name'], track['artists'][0]['name'])
 
 # Create time delay between retrieving batches
-def time_delay():
-    time.sleep(1)
+def time_delay(sleep):
+    return time.sleep(sleep)
 
 
 # Open file and read in links
@@ -48,23 +57,47 @@ def consume_batches(batch):
     if os.path.isfile(path):
         with open("track_list.csv", "a", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow([id])
+            for Id in batch:
+                writer.writerow([Id])
     else:
         with open("track_list.csv", "w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow([id])
+            for Id in batch:
+                writer.writerow([Id])
             print("CSV file created")
 
-def run_exporter(client_id, client_secret):
+def run_exporter(client_id, client_secret, redirect_uri, scope):
+    print("Entering run_exporter()")
+    print("CLIENT_ID:", bool(client_id), 
+          "CLIENT_SECRET:", bool(client_secret), 
+          "REDIRECT_URI:", bool(redirect_uri), 
+          "SCOPE:", bool(scope))
+
+    # Get a Spotify client instance
+    sp = authorization(client_id, client_secret, redirect_uri, scope)
+    print("Got Spotify client")
+
+    # Start fresh each run
     if os.path.exists("track_list.csv"):
+        print("Removing existing track_list.csv")
         os.remove("track_list.csv")
+
     full_links = read_links("Full_Links.txt")
+    print(f"Read {len(full_links)} lines from Full_Links.txt")
     cleaned = clean_links(full_links)
     parsed_ids = extract_ids(cleaned)
+    print(f"Parsed {len(parsed_ids)} track IDs")
     batches = get_batches(parsed_ids)
+   
+    batch_count = 0
     for batch in batches:
-        retrieve_track_data(client_id, client_secret, batch)
+        batch_count += 1
+        print(f"Processing batch {batch} with {len(batch)} IDs...")
+        retrieve_track_data(sp, batch)
         consume_batches(batch)
-
+        time_delay(.25)
+    print(f"Created {batch_count} batches total")
+    
 if __name__ == "__main__":
-    run_exporter(client_id="CLIENTid", client_secret="CLIENTsecret", redirect_uri="http://127.0.0.1:8000/callback")
+    run_exporter(client_id=os.getenv("CLIENT_ID"), client_secret=os.getenv("CLIENT_SECRET"), redirect_uri=os.getenv("REDIRECT_URI"), scope='user-library-read playlist-read-private')
+ 
