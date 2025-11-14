@@ -1,6 +1,7 @@
 import time
 import csv
 import os
+import io
 import spotipy 
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
@@ -15,10 +16,20 @@ def authorization(client_id, client_secret, redirect_uri, scope):
     return sp
 
 # Get track information from Spotify Web API
-def retrieve_track_data(sp, batch):
+def retrieve_track_data(sp, batch, start_index):
+    track_info = {}
+    trk_info_list = []
     track_list = sp.tracks(batch)
-    for track in track_list['tracks']:
+    for i, track in enumerate(track_list['tracks']):
         print(track['name'], track['artists'][0]['name'])
+        row_num = start_index + i
+        artists = []
+        for artist in track['artists']:
+            artists.append(artist['name'])
+        song_artists = ','.join(artists)
+        track_info = {'Track ID': row_num, 'Song': track['name'], 'Artist(s)': song_artists}
+        trk_info_list.append(track_info)
+    return trk_info_list
 
 # Create time delay between retrieving batches
 def time_delay(sleep):
@@ -52,18 +63,19 @@ def get_batches(parsed_ids):
 
 # Convert batches to CSV file.
 # Use to create CSV file upon completion of parsing and batching.
-def consume_batches(batch):
+def consume_batches(track_info):
     path = "track_list.csv"
     if os.path.isfile(path):
-        with open("track_list.csv", "a", newline="") as file:
-            writer = csv.writer(file)
-            for Id in batch:
-                writer.writerow([Id])
+        with io.open("track_list.csv", "a",encoding='utf8', newline="") as file:
+            fieldnames = ['Track ID', 'Song', 'Artist(s)']
+            writer = csv.writer(file, fieldnames=fieldnames)
+            for song in track_info:
+                writer.writerow(song['Track ID'], song['Song'], song['Artist'])
     else:
-        with open("track_list.csv", "w", newline="") as file:
+        with io.open("track_list.csv", "w", encoding='utf8', newline="") as file:
             writer = csv.writer(file)
-            for Id in batch:
-                writer.writerow([Id])
+            for song in track_info:
+                writer.writerow([song])
             print("CSV file created")
 
 def run_exporter(client_id, client_secret, redirect_uri, scope):
@@ -81,20 +93,21 @@ def run_exporter(client_id, client_secret, redirect_uri, scope):
     if os.path.exists("track_list.csv"):
         print("Removing existing track_list.csv")
         os.remove("track_list.csv")
-
+    start_index = 1
     full_links = read_links("Full_Links.txt")
     print(f"Read {len(full_links)} lines from Full_Links.txt")
     cleaned = clean_links(full_links)
     parsed_ids = extract_ids(cleaned)
     print(f"Parsed {len(parsed_ids)} track IDs")
     batches = get_batches(parsed_ids)
-   
+    
+
     batch_count = 0
     for batch in batches:
         batch_count += 1
         print(f"Processing batch {batch} with {len(batch)} IDs...")
-        retrieve_track_data(sp, batch)
-        consume_batches(batch)
+        track_info = retrieve_track_data(sp, batch, start_index)
+        consume_batches(track_info)
         time_delay(.25)
     print(f"Created {batch_count} batches total")
     
