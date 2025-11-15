@@ -21,7 +21,6 @@ def retrieve_track_data(sp, batch, start_index):
     trk_info_list = []
     track_list = sp.tracks(batch)
     for i, track in enumerate(track_list['tracks']):
-        print(track['name'], track['artists'][0]['name'])
         row_num = start_index + i
         artists = []
         for artist in track['artists']:
@@ -63,29 +62,23 @@ def get_batches(parsed_ids):
 
 # Convert batches to CSV file.
 # Use to create CSV file upon completion of parsing and batching.
-def consume_batches(track_info_list):
+def consume_batches(track_dict):
     path = "track_list.csv"
     fieldnames = ['Track ID', 'Song', 'Artist(s)']
     if os.path.isfile(path):
         with io.open("track_list.csv", "a",encoding='utf8', newline="") as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
-            for song in track_info_list:
+            for song in track_dict:
                 writer.writerow(song)
     else:
         with io.open("track_list.csv", "w", encoding='utf8', newline="") as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
-            for song in track_info_list:
-                writer.writeheader()
+            writer.writeheader()
+            for song in track_dict:
                 writer.writerow(song)
             print("CSV file created")
 
 def run_exporter(client_id, client_secret, redirect_uri, scope):
-    print("Entering run_exporter()")
-    print("CLIENT_ID:", bool(client_id), 
-          "CLIENT_SECRET:", bool(client_secret), 
-          "REDIRECT_URI:", bool(redirect_uri), 
-          "SCOPE:", bool(scope))
-
     # Get a Spotify client instance
     sp = authorization(client_id, client_secret, redirect_uri, scope)
     print("Got Spotify client")
@@ -96,17 +89,13 @@ def run_exporter(client_id, client_secret, redirect_uri, scope):
         os.remove("track_list.csv")
     start_index = 1
     full_links = read_links("Full_Links.txt")
-    print(f"Read {len(full_links)} lines from Full_Links.txt")
     cleaned = clean_links(full_links)
     parsed_ids = extract_ids(cleaned)
-    print(f"Parsed {len(parsed_ids)} track IDs")
     batches = get_batches(parsed_ids)
     
-
     batch_count = 0
     for batch in batches:
         batch_count += 1
-        print(f"Processing batch {batch} with {len(batch)} IDs...")
         track_info = retrieve_track_data(sp, batch, start_index)
         consume_batches(track_info)
         time_delay(.25)
