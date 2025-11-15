@@ -63,19 +63,20 @@ def get_batches(parsed_ids):
 
 # Convert batches to CSV file.
 # Use to create CSV file upon completion of parsing and batching.
-def consume_batches(track_info):
+def consume_batches(track_info_list):
     path = "track_list.csv"
+    fieldnames = ['Track ID', 'Song', 'Artist(s)']
     if os.path.isfile(path):
         with io.open("track_list.csv", "a",encoding='utf8', newline="") as file:
-            fieldnames = ['Track ID', 'Song', 'Artist(s)']
-            writer = csv.writer(file, fieldnames=fieldnames)
-            for song in track_info:
-                writer.writerow(song['Track ID'], song['Song'], song['Artist'])
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            for song in track_info_list:
+                writer.writerow(song)
     else:
         with io.open("track_list.csv", "w", encoding='utf8', newline="") as file:
-            writer = csv.writer(file)
-            for song in track_info:
-                writer.writerow([song])
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            for song in track_info_list:
+                writer.writeheader()
+                writer.writerow(song)
             print("CSV file created")
 
 def run_exporter(client_id, client_secret, redirect_uri, scope):
