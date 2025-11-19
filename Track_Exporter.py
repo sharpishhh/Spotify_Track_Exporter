@@ -90,7 +90,7 @@ def run_exporter(client_id, client_secret, redirect_uri, scope):
     if os.path.exists("track_list.csv"):
         print("Removing existing track_list.csv")
         os.remove("track_list.csv")
-    current_row = 0
+    current_row = 1
     full_links = read_links("Full_Links.txt")
     cleaned = clean_links(full_links)
     parsed_ids = extract_ids(cleaned)
