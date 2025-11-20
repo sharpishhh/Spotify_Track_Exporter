@@ -8,9 +8,6 @@ from dotenv import load_dotenv
 load_dotenv()
 print("starting track exporter.py")
 
-
-
-
 def authorization(client_id, client_secret, redirect_uri, scope):
     # Use keyword arguments so SpotifyOAuth gets the right values
     auth_manager = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope)
