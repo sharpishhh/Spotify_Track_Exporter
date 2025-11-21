@@ -1,5 +1,12 @@
 # Spotify Track Exporter
 
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![API](https://img.shields.io/badge/Spotify%20Web%20API-Integrated-brightgreen)
+![Status](https://img.shields.io/badge/Status-Completed-success)
+
+![header](https://capsule-render.vercel.app/api?type=waving&color=gradient&height=150&section=header&text=Spotify%20Track%20Exporter&fontSize=40&animation=fadeIn)
+
+
 **A lightweight tool for parsing and organizing Spotify track data.**
 
 A program that retrieves track URLs from Spotify, extracts their unique track IDs, and exports the information to a CSV file for backup or analysis.
