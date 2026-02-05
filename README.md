@@ -58,6 +58,7 @@ Spotify_Track_Exporter/
 |-- track_list_example.csv          # Example output
 ```
 
+**Note**: .env, .cache, and track_list.csv are excluded via .gitignore for security and to prevent accidental commits of generated files.
 ## Concepts / Workflow
 
 The program follows a simple multi-step process from raw input to exported data.
