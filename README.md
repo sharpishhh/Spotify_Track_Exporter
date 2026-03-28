@@ -53,7 +53,7 @@ Spotify_Track_Exporter/
 |-- .gitignore                      # Git ignore rules
 |-- requirements.txt                # Python dependencies
 |-- README.md                       # This file
-|-- Full_Links.txt                  # Example input (Spofiy URLs)
+|-- Full_Links.txt                  # Example input (Spotify URLs)
 |-- track_list_example.csv          # Example output
 ```
 
@@ -92,7 +92,7 @@ Follow these steps to set up and run the program on your local machine.
 ``` bash
 python -m venv venv
 source venv/Scripts/activate # or .\venv\Scripts\activate on Windows
-pip install spotipy
+pip install -r requirements.txt
 ```
 
 ### Important Note About Credentials
