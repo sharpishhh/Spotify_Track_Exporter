@@ -42,10 +42,7 @@ def read_links(file_path):
 
 # Clean extra space from end of the links
 def clean_links(full_links):
-    cleaned = []
-    for link in full_links:
-        cleaned.append(link.rstrip())
-    return cleaned
+    return [link.rstrip() for link in full_links]
 
 # Using the cleaned links, parse and extract the track IDs
 def extract_ids(cleaned):
