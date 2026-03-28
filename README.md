@@ -49,7 +49,6 @@ The following outlines the core capabilities of the current build and planned im
 ```
 Spotify_Track_Exporter/
 |-- Track_Exporter.py               # Main program
-|-- Batching_and_Extracting.py      # Development/prototyping file
 |-- .env.example                    # Template for API credentials
 |-- .gitignore                      # Git ignore rules
 |-- requirements.txt                # Python dependencies
