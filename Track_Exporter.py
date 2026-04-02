@@ -51,7 +51,7 @@ def extract_ids(cleaned):
         parsed_ids.append(link.removeprefix("https://open.spotify.com/track/").rstrip())
     return parsed_ids
 
-# Generate batches of digestable size to give to Spotify
+# Generate batches of digestible size to give to Spotify
 def get_batches(parsed_ids):
     length = len(parsed_ids)
     for i in range(0,length,50):
